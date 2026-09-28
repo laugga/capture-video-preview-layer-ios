@@ -1,5 +1,6 @@
 ## Unreleased
 
+* Renamed the repository from `VisualEffectCaptureVideoPreviewLayer` to `capture-video-preview-layer-ios`, and the package, product and module from `LMCaptureVideoPreviewLayer` to `CaptureVideoPreviewLayer`: depend on `https://github.com/laugga/capture-video-preview-layer-ios.git` and `import CaptureVideoPreviewLayer`. The `LMCaptureVideoPreviewLayer` class keeps its name
 * Renamed every public type and file from the `LAU` prefix to `LM` (e.g. `LAUCaptureVideoPreviewLayer` → `LMCaptureVideoPreviewLayer`); no consumer was pinned to the old name
 * Metal based implementation, replacing OpenGL ES 2.0
 * Written in Swift

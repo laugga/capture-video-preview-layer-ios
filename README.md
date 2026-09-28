@@ -1,10 +1,12 @@
-# LMCaptureVideoPreviewLayer
+# CaptureVideoPreviewLayer
 
 ## Introduction
 
-LMCaptureVideoPreviewLayer is a preview layer for the AVCaptureSession with a Metal-based blur filter. You can use it like a AVCaptureVideoPreviewLayer and then dynamically/in real-time apply a blur filter to the video output frames.
+CaptureVideoPreviewLayer is a preview layer for the AVCaptureSession with a Metal-based blur filter. You can use its `LMCaptureVideoPreviewLayer` like a AVCaptureVideoPreviewLayer and then dynamically/in real-time apply a blur filter to the video output frames.
 
 It was developed for [Lightmate](https://lightmate.app/ "Lightmate")'s iOS app with the goal of replacing AVFoundation's *AVCaptureVideoPreviewLayer*. This is mainly an R&D project and there are still many optimizations needed before it can be used in a "production" context. This is an attempt to share some of the learnings and components used in the app.
+
+This repository was called `VisualEffectCaptureVideoPreviewLayer`, and the package `LMCaptureVideoPreviewLayer`, until both were renamed. GitHub redirects the old URL, but Swift Package Manager identifies a package by its URL, so point the dependency at the new one below and `import CaptureVideoPreviewLayer`.
 
 ## Requirements and Dependencies
 
@@ -18,13 +20,18 @@ It was developed for [Lightmate](https://lightmate.app/ "Lightmate")'s iOS app w
 Add the package to the `dependencies` of your `Package.swift`:
 
 ```swift
-.package(url: "https://github.com/laugga/VisualEffectCaptureVideoPreviewLayer.git", from: "0.2.0")
+.package(url: "https://github.com/laugga/capture-video-preview-layer-ios.git", from: "0.2.0")
 ```
 
 and to the target that uses it:
 
 ```swift
-.target(name: "YourTarget", dependencies: ["LMCaptureVideoPreviewLayer"])
+.target(
+    name: "YourTarget",
+    dependencies: [
+        .product(name: "CaptureVideoPreviewLayer", package: "capture-video-preview-layer-ios")
+    ]
+)
 ```
 
 In Xcode, use *File > Add Package Dependencies…* and paste the same URL.
@@ -32,7 +39,7 @@ In Xcode, use *File > Add Package Dependencies…* and paste the same URL.
 LMCaptureVideoPreviewLayer's interface is very similar to AVCaptureVideoPreviewLayer. Here's an example:
 
 ```swift
-import LMCaptureVideoPreviewLayer
+import CaptureVideoPreviewLayer
 
 // Create your AVCaptureSession
 // ...
@@ -62,22 +69,22 @@ __Interactions:__
 * Pull-down to gradually decrease blur value
 * Pause/Resume the capture session (animated)
 
-Open `Example/LMCaptureVideoPreviewLayer.xcodeproj` and run the `Example` scheme. It opens on a catalog of scenarios; `Basics → Default` is the screen described above. The project references the package at the root of this repository, so there is nothing to install. There is no capture device on the Simulator, so the example feeds the preview layer with a generated colour grid there, and shows the real camera on a device.
+Open `Example/CaptureVideoPreviewLayer.xcodeproj` and run the `Example` scheme. It opens on a catalog of scenarios; `Basics → Default` is the screen described above. The project references the package at the root of this repository, so there is nothing to install. There is no capture device on the Simulator, so the example feeds the preview layer with a generated colour grid there, and shows the real camera on a device.
 
 ## Repository layout
 
 | Path | Contents |
 | --- | --- |
-| `Sources/LMCaptureVideoPreviewLayer` | The layer, the capture pipeline and the `.metal` shaders |
-| `Sources/LMCaptureVideoPreviewLayerShaderTypes` | The structures shared between Swift and the shading language |
-| `Tests/LMCaptureVideoPreviewLayerTests` | Rendering tests, comparing against reference images |
+| `Sources/CaptureVideoPreviewLayer` | The layer, the capture pipeline and the `.metal` shaders |
+| `Sources/CaptureVideoPreviewLayerShaderTypes` | The structures shared between Swift and the shading language |
+| `Tests/CaptureVideoPreviewLayerTests` | Rendering tests, comparing against reference images |
 | `Example` | The example application |
 | `Docs/matlab` | The script that generates the gaussian kernel tables |
 
 The rendering tests compare against reference images captured at a 2x scale, so they are skipped unless they run on a device with a 2x screen, such as the iPhone SE:
 
 ```bash
-xcodebuild test -scheme LMCaptureVideoPreviewLayer -destination 'platform=iOS Simulator,name=iPhone SE (3rd generation)'
+xcodebuild test -scheme CaptureVideoPreviewLayer -destination 'platform=iOS Simulator,name=iPhone SE (3rd generation)'
 ```
 
 Add `,OS=17.0` to the destination if you have that simulator installed for more than one runtime, otherwise the name is ambiguous and xcodebuild will not match it.

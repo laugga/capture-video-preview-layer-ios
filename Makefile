@@ -8,7 +8,7 @@
 # delegates — it is the try-it signal an agent and repo-doctor read off this
 # file.
 
-SCHEME := LMCaptureVideoPreviewLayer
+SCHEME := CaptureVideoPreviewLayer
 
 BUILD_DEST := generic/platform=iOS Simulator
 
