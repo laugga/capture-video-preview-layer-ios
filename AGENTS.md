@@ -2,7 +2,8 @@
 
 ## What this is
 
-**`LMCaptureVideoPreviewLayer`** is a preview layer for an `AVCaptureSession`
+**`CaptureVideoPreviewLayer`** is a Swift package whose one class,
+`LMCaptureVideoPreviewLayer`, is a preview layer for an `AVCaptureSession`
 with a GPU blur filter — a near-drop-in replacement for AVFoundation's
 `AVCaptureVideoPreviewLayer` that adds one animatable `blur` property in
 `[0,1]`. It is a `CAMetalLayer` subclass; the blur is a separable Gaussian
@@ -35,12 +36,12 @@ Run from the repository root:
 
 ```bash
 # Build and run the 4 tests
-xcodebuild test -scheme LMCaptureVideoPreviewLayer \
+xcodebuild test -scheme CaptureVideoPreviewLayer \
   -destination 'platform=iOS Simulator,name=iPhone SE (3rd generation)'
 
 # Build the example app
 xcodebuild build \
-  -project Example/LMCaptureVideoPreviewLayer.xcodeproj \
+  -project Example/CaptureVideoPreviewLayer.xcodeproj \
   -scheme Example \
   -destination 'platform=iOS Simulator,name=iPhone SE (3rd generation)'
 ```
@@ -62,7 +63,11 @@ needs UIKit, AVFoundation and a Metal device, so it has to go through
 the rendered blur against reference PNGs captured at a 2x scale, and they
 `XCTSkipUnless(UIScreen.main.nativeScale == 2)`. On an iPhone 15 or 17 (3x)
 they are *skipped*, not failed, so a green run there tests almost nothing. All
-four pass on an iPhone SE.
+four pass on an iPhone SE. If `make test` prints `Testing on: platform=iOS
+Simulator,id=` and fails, the machine has no iPhone SE simulator: create one
+with `xcrun simctl create "iPhone SE (3rd generation)"
+com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation`, or pass a 2x
+iPad's udid as `TEST_DEVICE` — all four pass on an iPad (A16) too.
 
 **The Metal toolchain can be missing.** Recent Xcode versions ship it as a
 separate component, and without it the `.metal` sources do not compile. CI
@@ -74,7 +79,7 @@ are the whole gate.
 
 ## Run the example app
 
-`Example/LMCaptureVideoPreviewLayer.xcodeproj` is the example app, laid out
+`Example/CaptureVideoPreviewLayer.xcodeproj` is the example app, laid out
 after the *UI Component Repository Example App Pattern* note in Notion, the
 same shape as `HorizontalPicker`'s. It is the only place the layer is exercised
 on screen. The project references the package at the repository root as a
@@ -82,12 +87,12 @@ local package (`..`), so there is nothing to install; open it and run the
 shared `Example` scheme.
 
 - **Naming** — the project, target product and installed app are
-  `LMCaptureVideoPreviewLayer`; the target is `LMCaptureVideoPreviewLayerExample`
+  `CaptureVideoPreviewLayer`; the target is `CaptureVideoPreviewLayerExample`
   and so is its Swift module (`PRODUCT_MODULE_NAME`), so `import
-  LMCaptureVideoPreviewLayer` still means the package. The bundle identifier
-  stays `com.laugga.VisualEffectCaptureVideoPreviewLayer`, which the Firebase
-  app is registered for.
-- **Layout** — `Example/LMCaptureVideoPreviewLayer/` is a synchronized folder,
+  CaptureVideoPreviewLayer` still means the package. The bundle identifier is
+  `com.laugga.capture-video-preview-layer-example` (`CONVENTIONS.md` → *Names*
+  → *Bundle identifier*), which the Firebase app is registered for.
+- **Layout** — `Example/CaptureVideoPreviewLayer/` is a synchronized folder,
   so a file added under it is in the target with no project edit. `App/` is
   the app and scene delegates; `Catalog/` is the index the app opens on and
   nothing else; `Scenarios/<Section>/` holds one view controller per scenario,
@@ -122,10 +127,10 @@ make deploy   # delegates to $(MAKE) -C Example deploy
 - **Configuration** — `Example/Makefile` names the destination directly as
   `FIREBASE_PROJECT`/`FIREBASE_APP`/`FIREBASE_GROUPS`: project
   `lightmate-development-390f6` ("Lightmate Development"), app
-  `com.laugga.VisualEffectCaptureVideoPreviewLayer`
-  (`1:480717957783:ios:5d8fa27e0dc6888c8f97d2`). The Example app links no
-  Firebase SDK, so there is no `GoogleService-Info.plist` to read these from
-  instead.
+  `com.laugga.capture-video-preview-layer-example`, nicknamed *Capture Video
+  Preview Layer iOS Development* (`1:480717957783:ios:332799481e2ba7648f97d2`).
+  The Example app links no Firebase SDK, so there is no
+  `GoogleService-Info.plist` to read these from instead.
 - **Build and signing** — Debug configuration, automatic signing, team
   `JJC3QT2D2L`. `Example/Support/ExportOptions.plist` exports with
   `method = debugging`, so only devices registered in that Apple team can
@@ -151,11 +156,11 @@ make deploy   # delegates to $(MAKE) -C Example deploy
 |---|---|
 | `Package.swift` | The build. Two targets and a test target, iOS 17.0. |
 | `Makefile` | The package's `build`, `test` and `clean`, wrapping `xcodebuild` (CONVENTIONS.md → Swift library). `deploy` is the only one of the Example's targets exposed here, and it delegates to `Example/Makefile`. |
-| `Sources/LMCaptureVideoPreviewLayer/` | The library. `LMCaptureVideoPreviewLayer.swift` is the layer and the render pipeline; `…Internal.swift` owns the capture session and the sample buffer; `…Utilities.swift` has `TextureInstance`, metallib loading and pipeline state creation; `…Shaders.swift` holds the shader function names; `…GaussianFilterKernel.swift` the kernel tables. |
-| `Sources/LMCaptureVideoPreviewLayer/LMCaptureVideoPreviewLayerShaders.metal` | The shaders, compiled at build time into the target's default metallib. |
-| `Sources/LMCaptureVideoPreviewLayerShaderTypes/` | A C target whose only job is `include/LMCaptureVideoPreviewLayerStructures.h`: the buffer indices, `VertexData_t` and `FilterUniforms_t`, read by both Swift and the `.metal` file. The `.c` file is empty on purpose — SwiftPM will not build a target without a compilation unit. |
-| `Tests/LMCaptureVideoPreviewLayerTests/` | The 4 tests, the `UIImage` comparison helper, a mock pipeline and `Samples.xcassets` with the source and reference images. |
-| `Example/LMCaptureVideoPreviewLayer.xcodeproj`, `Example/LMCaptureVideoPreviewLayer/` | The example app, with its shared `Example` scheme, and its `App/`, `Catalog/`, `Scenarios/` and `Resources/`. `Example/Makefile` owns its `build`, `test`, `archive` and `deploy`; `Example/Scripts/Version/` is vendored unchanged from `ops`'s `share/version/`; `Example/Support/ExportOptions.plist` configures the archive export. |
+| `Sources/CaptureVideoPreviewLayer/` | The library. `LMCaptureVideoPreviewLayer.swift` is the layer and the render pipeline; `…Internal.swift` owns the capture session and the sample buffer; `…Utilities.swift` has `TextureInstance`, metallib loading and pipeline state creation; `…Shaders.swift` holds the shader function names; `…GaussianFilterKernel.swift` the kernel tables. |
+| `Sources/CaptureVideoPreviewLayer/LMCaptureVideoPreviewLayerShaders.metal` | The shaders, compiled at build time into the target's default metallib. |
+| `Sources/CaptureVideoPreviewLayerShaderTypes/` | A C target whose only job is `include/LMCaptureVideoPreviewLayerStructures.h`: the buffer indices, `VertexData_t` and `FilterUniforms_t`, read by both Swift and the `.metal` file. The `.c` file is empty on purpose — SwiftPM will not build a target without a compilation unit. |
+| `Tests/CaptureVideoPreviewLayerTests/` | The 4 tests, the `UIImage` comparison helper, a mock pipeline and `Samples.xcassets` with the source and reference images. |
+| `Example/CaptureVideoPreviewLayer.xcodeproj`, `Example/CaptureVideoPreviewLayer/` | The example app, with its shared `Example` scheme, and its `App/`, `Catalog/`, `Scenarios/` and `Resources/`. `Example/Makefile` owns its `build`, `test`, `archive` and `deploy`; `Example/Scripts/Version/` is vendored unchanged from `ops`'s `share/version/`; `Example/Support/ExportOptions.plist` configures the archive export. |
 | `Docs/` | `features.md`, `figures/` (the README's GIF) and `matlab/` — the MATLAB script that generates the filter kernels, plus its plots. |
 | `CHANGELOG.md` | Human-written; the Metal, Swift and SPM changes sit under `Unreleased`. |
 
@@ -167,15 +172,19 @@ its task are the same in every Laugga Practice repository and are documented in
 
 - **The default and integration branch is `main`.** Open pull requests against
   it.
-- **Every type carries the `LM` prefix; the repository does not.** The
-  repository is `VisualEffectCaptureVideoPreviewLayer`, the class is
+- **Every type carries the `LM` prefix; the repository and the module do
+  not.** The repository is `capture-video-preview-layer-ios` and the package,
+  product and module are `CaptureVideoPreviewLayer`, both as the Components row
+  names them (`CONVENTIONS.md` → *Names*); the class is
   `LMCaptureVideoPreviewLayer`, and the mismatch is deliberate. Keep public
-  types on `LM`; do not rename toward the repository name. (Renamed from the
-  original `LAU` prefix — no functional change, no consumer was pinned to the
-  old name.)
+  types on `LM`; do not rename them toward the module name. Files are named
+  after the type they hold, so they keep `LM` too. (The repository was
+  `VisualEffectCaptureVideoPreviewLayer` and the module
+  `LMCaptureVideoPreviewLayer` until `LM-641`; the types were renamed from the
+  original `LAU` prefix before that. No consumer was pinned to either name.)
 - **Every file under `Sources/` opens with the MIT-style license header block**
-  carrying the file name and `LMCaptureVideoPreviewLayer`. Copy it into new
-  files.
+  carrying the file name and the module, `CaptureVideoPreviewLayer`. Copy it
+  into new files.
 - **Document with `///`**, and keep the public surface small. What is public is
   what is implemented: `init(session:)`, `session`, `blur`,
   `setBlur(_:animated:)` and `videoGravity`. Do not add stubs that only mirror
@@ -236,7 +245,7 @@ its task are the same in every Laugga Practice repository and are documented in
 
 Before opening a pull request, confirm:
 
-- [ ] `xcodebuild test -scheme LMCaptureVideoPreviewLayer -destination 'platform=iOS Simulator,name=iPhone SE (3rd generation)'` runs 4 tests with 0 failures and 0 skipped
+- [ ] `xcodebuild test -scheme CaptureVideoPreviewLayer -destination 'platform=iOS Simulator,name=iPhone SE (3rd generation)'` runs 4 tests with 0 failures and 0 skipped
 - [ ] The example builds with the command above, or `make -C Example build`
 - [ ] If a structure shared with the shaders changed, it changed in `LMCaptureVideoPreviewLayerStructures.h`, not in a Swift copy
 - [ ] `CHANGELOG.md` has an `Unreleased` line if a user of the package would notice the change
