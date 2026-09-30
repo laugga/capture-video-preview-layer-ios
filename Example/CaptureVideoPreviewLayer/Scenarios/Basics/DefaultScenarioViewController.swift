@@ -1,7 +1,7 @@
 /*
 
  DefaultScenarioViewController.swift
- CaptureVideoPreviewLayerExample
+ Example
 
  Copyright (c) 2016 Luis Laugga.
  Some rights reserved, all wrongs deserved.
@@ -12,7 +12,7 @@ import AVFoundation
 import UIKit
 import os
 
-private let log = Logger(subsystem: "com.laugga.CaptureVideoPreviewLayerExample", category: "camera")
+private let log = Logger(subsystem: "com.laugga.capture-video-preview-layer-example", category: "camera")
 
 /// The layer as it comes: the back camera, pressed to blur in and released to blur out,
 /// with a button to pause and resume the capture session.
