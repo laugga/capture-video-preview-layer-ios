@@ -145,8 +145,8 @@ make deploy   # delegates to $(MAKE) -C Example deploy
   and a new one is a new app. The `firebase` CLI has no rename command, so it
   is `PATCH
   https://firebase.googleapis.com/v1beta1/projects/<project>/iosApps/<app id>?updateMask=displayName`
-  with `{"displayName": "…"}`. `LM-647` used it to take the trailing space off
-  `"CaptureVideoPreviewLayer "`.
+  with `{"displayName": "…"}`, sent with a `gcloud auth print-access-token`
+  bearer token and `x-goog-user-project` set to the project.
 - **Build and signing** — Debug configuration, automatic signing, team
   `JJC3QT2D2L`. `Example/Support/ExportOptions.plist` exports with
   `method = debugging`, so only devices registered in that Apple team can
