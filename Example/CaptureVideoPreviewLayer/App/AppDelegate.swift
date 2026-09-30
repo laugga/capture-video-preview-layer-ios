@@ -1,7 +1,7 @@
 /*
 
  AppDelegate.swift
- CaptureVideoPreviewLayerExample
+ Example
 
  Copyright (c) 2016 Luis Laugga.
  Some rights reserved, all wrongs deserved.

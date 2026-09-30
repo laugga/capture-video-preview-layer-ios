@@ -86,10 +86,19 @@ on screen. The project references the package at the repository root as a
 local package (`..`), so there is nothing to install; open it and run the
 shared `Example` scheme.
 
-- **Naming** — the project, target product and installed app are
-  `CaptureVideoPreviewLayer`; the target is `CaptureVideoPreviewLayerExample`
-  and so is its Swift module (`PRODUCT_MODULE_NAME`), so `import
-  CaptureVideoPreviewLayer` still means the package. The bundle identifier is
+- **Naming** — the app is called *CaptureVideoPreviewLayer*, but its target
+  is `Example`. The target, its product and its Swift module are all
+  `Example` — `PRODUCT_NAME = $(TARGET_NAME)`, so the build is `Example.app`
+  and `deploy` uploads `Example.ipa`. The name on the home screen is the
+  display name, `INFOPLIST_KEY_CFBundleDisplayName = CaptureVideoPreviewLayer`,
+  set in both configurations. That is `template-library-swift`'s Example
+  exactly: a module named `CaptureVideoPreviewLayer` would clash with the
+  package it imports, so only the display name carries the library's Name. The
+  project and `Example/CaptureVideoPreviewLayer/` keep the library's name, as
+  the template's do. The display name is also what the Firebase app is
+  nicknamed — whatever the build calls itself (ops `CONVENTIONS.md` →
+  *Firebase app nickname*) — so drop it and the app is called `Example`, on a
+  phone and in Firebase. The bundle identifier is
   `com.laugga.capture-video-preview-layer-example` (`CONVENTIONS.md` → *Names*
   → *Bundle identifier*), which the Firebase app is registered for.
 - **Layout** — `Example/CaptureVideoPreviewLayer/` is a synchronized folder,
@@ -127,10 +136,17 @@ make deploy   # delegates to $(MAKE) -C Example deploy
 - **Configuration** — `Example/Makefile` names the destination directly as
   `FIREBASE_PROJECT`/`FIREBASE_APP`/`FIREBASE_GROUPS`: project
   `lightmate-development-390f6` ("Lightmate Development"), app
-  `com.laugga.capture-video-preview-layer-example`, nicknamed *Capture Video
-  Preview Layer iOS Development* (`1:480717957783:ios:332799481e2ba7648f97d2`).
+  `com.laugga.capture-video-preview-layer-example`, nicknamed
+  *CaptureVideoPreviewLayer* (`1:480717957783:ios:332799481e2ba7648f97d2`).
   The Example app links no Firebase SDK, so there is no
   `GoogleService-Info.plist` to read these from instead.
+- **Renaming the Firebase app** — a nickname is an edit in place that keeps
+  the app id, its testers and its releases; a bundle identifier cannot change,
+  and a new one is a new app. The `firebase` CLI has no rename command, so it
+  is `PATCH
+  https://firebase.googleapis.com/v1beta1/projects/<project>/iosApps/<app id>?updateMask=displayName`
+  with `{"displayName": "…"}`, sent with a `gcloud auth print-access-token`
+  bearer token and `x-goog-user-project` set to the project.
 - **Build and signing** — Debug configuration, automatic signing, team
   `JJC3QT2D2L`. `Example/Support/ExportOptions.plist` exports with
   `method = debugging`, so only devices registered in that Apple team can
