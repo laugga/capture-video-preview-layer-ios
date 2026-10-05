@@ -69,7 +69,7 @@ __Interactions:__
 * Pull-down to gradually decrease blur value
 * Pause/Resume the capture session (animated)
 
-Open `Example/CaptureVideoPreviewLayer.xcodeproj` and run the `Example` scheme. It opens on a catalog of scenarios; `Basics → Default` is the screen described above. The project references the package at the root of this repository, so there is nothing to install. There is no capture device on the Simulator, so the example feeds the preview layer with a generated colour grid there, and shows the real camera on a device.
+Open `Example/CaptureVideoPreviewLayerExample.xcodeproj` and run the `Example` scheme. It opens on a catalog of scenarios; `Basics → Default` is the screen described above. The project references the package at the root of this repository, so there is nothing to install. There is no capture device on the Simulator, so the example feeds the preview layer with a generated colour grid there, and shows the real camera on a device.
 
 ## Repository layout
 

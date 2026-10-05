@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "LM6310000000000000020001"
-               BuildableName = "CaptureVideoPreviewLayer.app"
+               BuildableName = "CaptureVideoPreviewLayerExample.app"
                BlueprintName = "CaptureVideoPreviewLayerExample"
-               ReferencedContainer = "container:CaptureVideoPreviewLayer.xcodeproj">
+               ReferencedContainer = "container:CaptureVideoPreviewLayerExample.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "LM6310000000000000020001"
-            BuildableName = "CaptureVideoPreviewLayer.app"
+            BuildableName = "CaptureVideoPreviewLayerExample.app"
             BlueprintName = "CaptureVideoPreviewLayerExample"
-            ReferencedContainer = "container:CaptureVideoPreviewLayer.xcodeproj">
+            ReferencedContainer = "container:CaptureVideoPreviewLayerExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "LM6310000000000000020001"
-            BuildableName = "CaptureVideoPreviewLayer.app"
+            BuildableName = "CaptureVideoPreviewLayerExample.app"
             BlueprintName = "CaptureVideoPreviewLayerExample"
-            ReferencedContainer = "container:CaptureVideoPreviewLayer.xcodeproj">
+            ReferencedContainer = "container:CaptureVideoPreviewLayerExample.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

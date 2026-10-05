@@ -41,14 +41,16 @@ xcodebuild test -scheme CaptureVideoPreviewLayer \
 
 # Build the example app
 xcodebuild build \
-  -project Example/CaptureVideoPreviewLayer.xcodeproj \
+  -project Example/CaptureVideoPreviewLayerExample.xcodeproj \
   -scheme Example \
   -destination 'platform=iOS Simulator,name=iPhone SE (3rd generation)'
 ```
 
 The `Makefile`s wrap the same commands: `make build`, `make test` and `clean`
-at the root are the package's; `make -C Example build`, `make -C Example test`
-and `make -C Example archive` are the Example app's.
+at the root are the package's; `make -C Example build` and `make -C Example
+archive` are the Example app's. `make -C Example test` runs nothing: the
+Example has no tests of its own, so it prints that the package's run at the
+root with `make test`, and exits 0.
 
 These are the same two steps `.github/workflows/ci.yml` runs on every pull
 request (`Build and test`). If the simulator name is ambiguous because it is
@@ -79,25 +81,44 @@ are the whole gate.
 
 ## Run the example app
 
-`Example/CaptureVideoPreviewLayer.xcodeproj` is the example app, laid out
-after the *UI Component Repository Example App Pattern* note in Notion, the
-same shape as `HorizontalPicker`'s. It is the only place the layer is exercised
-on screen. The project references the package at the repository root as a
-local package (`..`), so there is nothing to install; open it and run the
+`Example/CaptureVideoPreviewLayerExample.xcodeproj` is the example app, laid
+out after the *UI Component Repository Example App Pattern* note in Notion,
+the same shape as `HorizontalPicker`'s. It is the only place the layer is
+exercised on screen. The project references the package at the repository root
+as a local package (`..`), so there is nothing to install; open it and run the
 shared `Example` scheme.
 
-- **Naming** — the project, target product and installed app are
-  `CaptureVideoPreviewLayer`; the target is `CaptureVideoPreviewLayerExample`
-  and so is its Swift module (`PRODUCT_MODULE_NAME`), so `import
-  CaptureVideoPreviewLayer` still means the package. The bundle identifier is
-  `com.laugga.capture-video-preview-layer-example` (`CONVENTIONS.md` → *Names*
-  → *Bundle identifier*), which the Firebase app is registered for.
-- **Layout** — `Example/CaptureVideoPreviewLayer/` is a synchronized folder,
-  so a file added under it is in the target with no project edit. `App/` is
-  the app and scene delegates; `Catalog/` is the index the app opens on and
-  nothing else; `Scenarios/<Section>/` holds one view controller per scenario,
-  each with a `#Preview`; `Resources/` holds the asset catalog and the launch
-  storyboard. The Info.plist is generated from `INFOPLIST_KEY_*` build settings.
+- **Naming** — the app is `CaptureVideoPreviewLayerExample` in every name but
+  one: its display name is *CaptureVideoPreviewLayer*. That is ops
+  `CONVENTIONS.md` → *Names* → *A library's Example app*, where the reasoning
+  is, and this repository follows it with no exception:
+  - **Target, product and module** — `CaptureVideoPreviewLayerExample`. The
+    target's `name` and `productName` say so, and the product and the module
+    follow through `PRODUCT_NAME = $(TARGET_NAME)`, with no
+    `PRODUCT_MODULE_NAME`, so `import CaptureVideoPreviewLayer` still means the
+    package. The build is `CaptureVideoPreviewLayerExample.app`, and `deploy`
+    uploads `CaptureVideoPreviewLayerExample.ipa`.
+  - **Project and source directory** —
+    `Example/CaptureVideoPreviewLayerExample.xcodeproj` and
+    `Example/CaptureVideoPreviewLayerExample/`.
+  - **Scheme** — `Example`, the one name that is the same in every library. No
+    target, product or module is called that.
+  - **Display name** — `INFOPLIST_KEY_CFBundleDisplayName =
+    CaptureVideoPreviewLayer`, set by hand in both configurations. It is what
+    the home screen shows and what the Firebase app is nicknamed (ops
+    `CONVENTIONS.md` → *Firebase app nickname*), so drop it and the app is
+    called *CaptureVideoPreviewLayerExample* on a phone, and would be
+    registered as that.
+  - **Bundle identifier** — `com.laugga.capture-video-preview-layer-example`
+    (`CONVENTIONS.md` → *Names* → *Bundle identifier*), which the Firebase app
+    is registered for.
+- **Layout** — `Example/CaptureVideoPreviewLayerExample/` is a synchronized
+  folder, so a file added under it is in the target with no project edit.
+  `App/` is the app and scene delegates; `Catalog/` is the index the app opens
+  on and nothing else; `Scenarios/<Section>/` holds one view controller per
+  scenario, each with a `#Preview`; `Resources/` holds the asset catalog and
+  the launch storyboard. The Info.plist is generated from `INFOPLIST_KEY_*`
+  build settings.
 - **Scenarios** — one so far, `Basics → Default`: a capture session, the back
   camera, press to blur in, drag up to ease it off, release to blur out, and a
   button to pause the session. Add a scenario by writing its view controller
@@ -127,9 +148,10 @@ make deploy   # delegates to $(MAKE) -C Example deploy
 - **Configuration** — `Example/Makefile` names the destination directly as
   `FIREBASE_PROJECT`/`FIREBASE_APP`/`FIREBASE_GROUPS`: project
   `lightmate-development-390f6` ("Lightmate Development"), app
-  `com.laugga.capture-video-preview-layer-example`, nicknamed *Capture Video
-  Preview Layer iOS Development* (`1:480717957783:ios:332799481e2ba7648f97d2`).
-  The Example app links no Firebase SDK, so there is no
+  `com.laugga.capture-video-preview-layer-example`
+  (`1:480717957783:ios:332799481e2ba7648f97d2`), nicknamed
+  *CaptureVideoPreviewLayer*, what the build calls itself — see *Naming*
+  above. The Example app links no Firebase SDK, so there is no
   `GoogleService-Info.plist` to read these from instead.
 - **Build and signing** — Debug configuration, automatic signing, team
   `JJC3QT2D2L`. `Example/Support/ExportOptions.plist` exports with
@@ -160,7 +182,7 @@ make deploy   # delegates to $(MAKE) -C Example deploy
 | `Sources/CaptureVideoPreviewLayer/LMCaptureVideoPreviewLayerShaders.metal` | The shaders, compiled at build time into the target's default metallib. |
 | `Sources/CaptureVideoPreviewLayerShaderTypes/` | A C target whose only job is `include/LMCaptureVideoPreviewLayerStructures.h`: the buffer indices, `VertexData_t` and `FilterUniforms_t`, read by both Swift and the `.metal` file. The `.c` file is empty on purpose — SwiftPM will not build a target without a compilation unit. |
 | `Tests/CaptureVideoPreviewLayerTests/` | The 4 tests, the `UIImage` comparison helper, a mock pipeline and `Samples.xcassets` with the source and reference images. |
-| `Example/CaptureVideoPreviewLayer.xcodeproj`, `Example/CaptureVideoPreviewLayer/` | The example app, with its shared `Example` scheme, and its `App/`, `Catalog/`, `Scenarios/` and `Resources/`. `Example/Makefile` owns its `build`, `test`, `archive` and `deploy`; `Example/Scripts/Version/` is vendored unchanged from `ops`'s `share/version/`; `Example/Support/ExportOptions.plist` configures the archive export. |
+| `Example/CaptureVideoPreviewLayerExample.xcodeproj`, `Example/CaptureVideoPreviewLayerExample/` | The example app, with its shared `Example` scheme, and its `App/`, `Catalog/`, `Scenarios/` and `Resources/`. `Example/Makefile` owns its `build`, `test`, `archive` and `deploy`; `Example/Scripts/Version/` is vendored unchanged from `ops`'s `share/version/`; `Example/Support/ExportOptions.plist` configures the archive export. |
 | `Docs/` | `features.md`, `figures/` (the README's GIF) and `matlab/` — the MATLAB script that generates the filter kernels, plus its plots. |
 | `CHANGELOG.md` | Human-written; the Metal, Swift and SPM changes sit under `Unreleased`. |
 
