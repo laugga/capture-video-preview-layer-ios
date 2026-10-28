@@ -192,8 +192,11 @@ Branch names, pull request titles and bodies, and how a pull request references
 its task are the same in every Laugga Practice repository and are documented in
 [`laugga/ops`](https://github.com/laugga/ops). What is specific here:
 
-- **The default and integration branch is `main`.** Open pull requests against
-  it.
+- **The default and integration branch is `dev`.** Pull requests go into it,
+  unless the task names a `release/X.Y.Z` line in its `Base branch`, and
+  release tags are cut on it. `main` moves only by the pull request that
+  follows a final tag, and no work targets it — ops `CONVENTIONS.md` →
+  *Branches*.
 - **Every type carries the `LM` prefix; the repository and the module do
   not.** The repository is `capture-video-preview-layer-ios` and the package,
   product and module are `CaptureVideoPreviewLayer`, both as the Components row
