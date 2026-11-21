@@ -167,7 +167,22 @@ make deploy   # delegates to $(MAKE) -C Example deploy
 - **One-time setup** — the machine running `deploy` must be signed in to
   Apple team `JJC3QT2D2L` in Xcode, and to the Firebase CLI
   (`firebase login`). A new tester's device is registered in that Apple team
-  by hand before it can install a build.
+  by hand before it can install a build. On the ops host there is no
+  `firebase login`: the CLI signs in with the `laugga-ops` service account's
+  key instead.
+- **Billed to** — `lightmate-development-390f6`, the project it uploads to,
+  whichever credential the `firebase` CLI has. `Example/Makefile` runs
+  `firebase appdistribution:distribute` with `GOOGLE_CLOUD_QUOTA_PROJECT` set
+  to `$(FIREBASE_PROJECT)`, which firebase-tools sends as
+  `x-goog-user-project`. Without that, Google bills a service account's call
+  to the project the account belongs to, and the ops host's uploads got
+  `403, Firebase App Distribution API has not been used in project
+  656901280286` — `laugga-development`, `laugga-ops`'s own project, not the
+  project uploaded to (LM-697). Don't enable the API there to fix that 403;
+  check that the quota project reaches the CLI. A Deploy workflow, should this
+  repository add one, uploads without it: `github-deploy` belongs to the app's
+  project already, and holds only App Distribution's role, which lacks the
+  `serviceusage.services.use` the quota project needs.
 - **What it prints** — a tester install link, which goes in this section of
   the pull request description, replaced wholesale on the next build rather
   than appended.
