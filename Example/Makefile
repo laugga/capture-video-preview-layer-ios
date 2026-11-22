@@ -102,6 +102,17 @@ UPLOAD_LOG    := build/upload.log
 # archive exactly once, then upload that archive's own .ipa. Any step failing
 # stops the rest, so a failed build can never leave the previous run's link
 # looking like the new one.
+#
+# The upload bills App Distribution's API to the project it uploads to.
+# Without that, Google bills a service account's call to the project the
+# account belongs to: on the ops host, where the CLI has no `firebase login`
+# and signs in with the laugga-ops key, that is laugga-development, which has
+# no App Distribution, and every try-it upload got a 403 naming project
+# 656901280286 (LM-697). The caller needs serviceusage.services.use on
+# $(FIREBASE_PROJECT), which a person or laugga-ops has there. A Deploy
+# workflow, where this repository adds one, leaves it out: github-deploy
+# belongs to $(FIREBASE_PROJECT) already, and holds only App Distribution's
+# role, which lacks that permission.
 deploy: ## Build, export and upload a fresh .ipa to the internal group
 	$(VERSION_SH) check-deployable
 	$(MAKE) archive
@@ -111,7 +122,7 @@ deploy: ## Build, export and upload a fresh .ipa to the internal group
 		"$$FULL_VERSION ($$BUILD_NUMBER)" \
 		"$$(git rev-parse --abbrev-ref HEAD)" "$$COMMIT" \
 		"$$(git log -1 --format=%s)" > "$(RELEASE_NOTES)"
-	firebase appdistribution:distribute "$(IPA)" \
+	GOOGLE_CLOUD_QUOTA_PROJECT="$(FIREBASE_PROJECT)" firebase appdistribution:distribute "$(IPA)" \
 		--project "$(FIREBASE_PROJECT)" \
 		--app "$(FIREBASE_APP)" \
 		--groups "$(FIREBASE_GROUPS)" \
